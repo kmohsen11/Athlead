@@ -19,12 +19,28 @@
       "bundleIdentifier": "com.athlead.app",
       "config": {
         "usesNonExemptEncryption": false
+      },
+      "infoPlist": {
+        "NSHealthShareUsageDescription": "This app uses your health data to provide insights and track your fitness progress. We access heart rate, steps, calories, and activity data from your Apple Watch.",
+        "NSHealthUpdateUsageDescription": "This app may save workout data to Apple Health to keep your fitness information in sync.",
+        "UIBackgroundModes": ["bluetooth-central", "fetch", "processing"],
+        "UIRequiredDeviceCapabilities": ["armv7", "healthkit"],
+        "NSBluetoothAlwaysUsageDescription": "This app uses Bluetooth to connect to your EMG sensors and Apple Watch.",
+        "NSBluetoothPeripheralUsageDescription": "This app uses Bluetooth to connect to your EMG sensors and Apple Watch."
       }
     },
-    "scheme": "athlead",
+    "scheme": "com.athlead.app",
     "plugins": [
       "expo-dev-client",
-      "react-native-ble-plx"
+      "react-native-ble-plx",
+      [
+        "react-native-health",
+        {
+          "healthSharePermission": "This app uses your health data to provide insights and track your fitness progress. We access heart rate, steps, calories, and activity data from your Apple Watch.",
+          "healthUpdatePermission": "This app may save workout data to Apple Health to keep your fitness information in sync.",
+          "isClinical": false
+        }
+      ]
     ],
     "android": {
       "permissions": [

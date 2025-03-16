@@ -55,11 +55,20 @@
     </dict>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to connect to bluetooth devices</string>
+    <key>NSHealthShareUsageDescription</key>
+    <string>This app uses your health data to provide insights and track your fitness progress.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>This app may save workout data to Apple Health to keep your fitness information in sync.</string>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>bluetooth-central</string>
+    </array>
     <key>UILaunchStoryboardName</key>
     <string>SplashScreen</string>
     <key>UIRequiredDeviceCapabilities</key>
     <array>
-      <string>arm64</string>
+      <string>armv7</string>
+      <string>healthkit</string>
     </array>
     <key>UIRequiresFullScreen</key>
     <false/>

@@ -1,101 +1,121 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
-import { useAuth } from '../hooks/useAuth';
-import { AntDesign } from '@expo/vector-icons';
+import { View, Text, StyleSheet, TouchableOpacity, Image, SafeAreaView } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useAuth } from '../../App';
 
 const LoginScreen = () => {
-  const { signInWithGoogle, loading } = useAuth();
-
-  const handleGoogleSignIn = async () => {
-    try {
-      console.log('Starting Google sign-in...');
-      const { data, error } = await signInWithGoogle();
-      
-      if (error) {
-        console.error('Error signing in with Google:', error.message);
-      } else if (data?.session) {
-        console.log('Sign-in successful with session:', data.session.user.email);
-      } else {
-        console.log('Sign-in process completed but no session returned');
-      }
-    } catch (error) {
-      console.error('Error in handleGoogleSignIn:', error);
-    }
-  };
+  const { login } = useAuth();
 
   return (
-    <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={require('../../assets/icon.png')}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={styles.title}>Athlead</Text>
-        <Text style={styles.subtitle}>Track your muscle activity and improve your performance</Text>
-      </View>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.content}>
+        <View style={styles.logoContainer}>
+          <Text style={styles.logo}>Athlead</Text>
+          <Text style={styles.tagline}>Your Personal Health & Fitness Companion</Text>
+        </View>
 
-      <TouchableOpacity
-        style={styles.googleButton}
-        onPress={handleGoogleSignIn}
-        disabled={loading}
-      >
-        <AntDesign name="google" size={24} color="#DB4437" style={styles.googleIcon} />
-        <Text style={styles.buttonText}>
-          {loading ? 'Loading...' : 'Continue with Google'}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        <View style={styles.featureContainer}>
+          <View style={styles.featureItem}>
+            <Ionicons name="watch-outline" size={32} color="#4F8EF7" />
+            <Text style={styles.featureTitle}>Apple Watch Integration</Text>
+            <Text style={styles.featureDescription}>
+              Connect with your Apple Watch to track health metrics in real-time
+            </Text>
+          </View>
+
+          <View style={styles.featureItem}>
+            <Ionicons name="analytics-outline" size={32} color="#4F8EF7" />
+            <Text style={styles.featureTitle}>Detailed Analytics</Text>
+            <Text style={styles.featureDescription}>
+              Get insights into your health data with comprehensive analytics
+            </Text>
+          </View>
+
+          <View style={styles.featureItem}>
+            <Ionicons name="fitness-outline" size={32} color="#4F8EF7" />
+            <Text style={styles.featureTitle}>Workout Tracking</Text>
+            <Text style={styles.featureDescription}>
+              Record and analyze your workouts to improve performance
+            </Text>
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.loginButton} onPress={login}>
+          <Text style={styles.loginButtonText}>Get Started</Text>
+          <Ionicons name="arrow-forward" size={20} color="#fff" />
+        </TouchableOpacity>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    padding: 20,
+    backgroundColor: '#f5f5f5',
+  },
+  content: {
+    flex: 1,
+    padding: 24,
     justifyContent: 'space-between',
-    paddingVertical: 60,
   },
   logoContainer: {
     alignItems: 'center',
-    marginTop: 40,
+    marginTop: 60,
   },
   logo: {
-    width: 120,
-    height: 120,
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 32,
+    fontSize: 42,
     fontWeight: 'bold',
+    color: '#4F8EF7',
     marginBottom: 10,
-    color: '#333',
   },
-  subtitle: {
+  tagline: {
     fontSize: 16,
     color: '#666',
     textAlign: 'center',
-    marginHorizontal: 30,
   },
-  googleButton: {
+  featureContainer: {
+    marginVertical: 40,
+  },
+  featureItem: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 20,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+    alignItems: 'center',
+  },
+  featureTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  featureDescription: {
+    fontSize: 14,
+    color: '#666',
+    textAlign: 'center',
+    lineHeight: 20,
+  },
+  loginButton: {
+    backgroundColor: '#4F8EF7',
+    borderRadius: 12,
+    padding: 16,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 12,
     marginBottom: 20,
-    borderWidth: 1,
-    borderColor: '#ddd',
   },
-  googleIcon: {
-    marginRight: 12,
-  },
-  buttonText: {
-    fontSize: 16,
-    color: '#333',
-    fontWeight: '600',
+  loginButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginRight: 8,
   },
 });
 
