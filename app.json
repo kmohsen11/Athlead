@@ -4,10 +4,10 @@
     "slug": "athlead",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/logo.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/logo.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -26,7 +26,14 @@
         "UIBackgroundModes": ["bluetooth-central", "fetch", "processing"],
         "UIRequiredDeviceCapabilities": ["armv7", "healthkit"],
         "NSBluetoothAlwaysUsageDescription": "This app uses Bluetooth to connect to your EMG sensors and Apple Watch.",
-        "NSBluetoothPeripheralUsageDescription": "This app uses Bluetooth to connect to your EMG sensors and Apple Watch."
+        "NSBluetoothPeripheralUsageDescription": "This app uses Bluetooth to connect to your EMG sensors and Apple Watch.",
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "com.athlead.app"
+            ]
+          }
+        ]
       }
     },
     "scheme": "com.athlead.app",
@@ -43,12 +50,35 @@
       ]
     ],
     "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/logo.png",
+        "backgroundColor": "#ffffff"
+      },
       "permissions": [
         "android.permission.BLUETOOTH",
         "android.permission.BLUETOOTH_ADMIN",
         "android.permission.BLUETOOTH_CONNECT"
       ],
-      "package": "com.athlead.app"
+      "package": "com.athlead.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "com.athlead.app"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "favicon": "./assets/logo.png"
     }
   }
 }

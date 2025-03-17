@@ -8,13 +8,16 @@ import {
   ActivityIndicator, 
   RefreshControl,
   Dimensions,
-  Alert
+  Alert,
+  SafeAreaView,
+  StatusBar
 } from 'react-native';
 import { useHealthKit } from '../hooks/useHealthKit';
 import { Ionicons } from '@expo/vector-icons';
 import { LineChart } from 'react-native-chart-kit';
 import { StackNavigationProp } from '@react-navigation/stack';
 import { useNavigation } from '@react-navigation/native';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 type RootStackParamList = {
   Home: undefined;
@@ -56,7 +59,7 @@ const HealthDataScreen: React.FC = () => {
     labels: ["Today"],
     datasets: [
       {
-        data: healthData.heartRate ? [healthData.heartRate] : [],
+        data: healthData.heartRate ? [healthData.heartRate] : [0],
         color: (opacity = 1) => `rgba(255, 0, 0, ${opacity})`,
         strokeWidth: 2
       }
@@ -68,7 +71,7 @@ const HealthDataScreen: React.FC = () => {
     labels: ["Today"],
     datasets: [
       {
-        data: healthData.steps ? [healthData.steps] : [],
+        data: healthData.steps ? [healthData.steps] : [0],
         color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
         strokeWidth: 2
       }
@@ -80,7 +83,7 @@ const HealthDataScreen: React.FC = () => {
     labels: ["Today"],
     datasets: [
       {
-        data: healthData.activeEnergyBurned ? [healthData.activeEnergyBurned] : [],
+        data: healthData.activeEnergyBurned ? [healthData.activeEnergyBurned] : [0],
         color: (opacity = 1) => `rgba(255, 149, 0, ${opacity})`,
         strokeWidth: 2
       }
@@ -107,7 +110,7 @@ const HealthDataScreen: React.FC = () => {
 
   if (!isAuthorized) {
     return (
-      <View style={styles.container}>
+      <SafeAreaWrapper>
         <View style={styles.notAuthorizedContainer}>
           <Ionicons name="watch-outline" size={80} color="#ccc" />
           <Text style={styles.notAuthorizedText}>
@@ -120,18 +123,18 @@ const HealthDataScreen: React.FC = () => {
             <Text style={styles.connectButtonText}>Go Back to Connect</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaWrapper>
     );
   }
 
   if (isLoading) {
     return (
-      <View style={styles.container}>
+      <SafeAreaWrapper>
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#4F8EF7" />
           <Text style={styles.loadingText}>Loading health data...</Text>
         </View>
-      </View>
+      </SafeAreaWrapper>
     );
   }
 
@@ -141,7 +144,7 @@ const HealthDataScreen: React.FC = () => {
 
   if (!hasData) {
     return (
-      <View style={styles.container}>
+      <SafeAreaWrapper>
         <View style={styles.noDataContainer}>
           <Ionicons name="alert-circle-outline" size={80} color="#ccc" />
           <Text style={styles.noDataText}>
@@ -162,169 +165,174 @@ const HealthDataScreen: React.FC = () => {
             <Text style={styles.refreshButtonText}>Record Test Workout</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaWrapper>
     );
   }
 
   return (
-    <ScrollView 
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={['#4F8EF7']}
-        />
-      }
-    >
-      {/* Watch Info Section */}
-      <View style={styles.watchInfoSection}>
-        <View style={styles.watchDetails}>
-          <Text style={styles.watchName}>{deviceName || 'Apple Watch'}</Text>
-          <Text style={styles.watchModel}>Connected Device</Text>
-          <Text style={styles.lastUpdated}>
-            Last updated: {healthData.lastUpdated ? healthData.lastUpdated.toLocaleTimeString() : 'Unknown'}
-          </Text>
+    <SafeAreaWrapper>
+      <ScrollView 
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#4F8EF7']}
+          />
+        }
+      >
+        {/* Watch Info Section */}
+        <View style={styles.watchInfoSection}>
+          <View style={styles.watchDetails}>
+            <Text style={styles.watchName}>{deviceName || 'Apple Watch'}</Text>
+            <Text style={styles.watchModel}>Connected Device</Text>
+            <Text style={styles.lastUpdated}>
+              Last updated: {healthData.lastUpdated ? healthData.lastUpdated.toLocaleTimeString() : 'Unknown'}
+            </Text>
+            <TouchableOpacity 
+              style={styles.refreshButton}
+              onPress={onRefresh}
+            >
+              <Ionicons name="refresh-outline" size={16} color="#fff" />
+              <Text style={styles.refreshButtonText}>Refresh Data</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Today's Stats Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Today's Stats</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statItem}>
+              <View style={[styles.statIconContainer, { backgroundColor: 'rgba(255, 0, 0, 0.1)' }]}>
+                <Ionicons name="heart" size={24} color="red" />
+              </View>
+              <Text style={styles.statValue}>{healthData.heartRate || '--'}</Text>
+              <Text style={styles.statLabel}>BPM</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <View style={[styles.statIconContainer, { backgroundColor: 'rgba(0, 122, 255, 0.1)' }]}>
+                <Ionicons name="footsteps" size={24} color="#007AFF" />
+              </View>
+              <Text style={styles.statValue}>{healthData.steps ? healthData.steps.toLocaleString() : '--'}</Text>
+              <Text style={styles.statLabel}>Steps</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <View style={[styles.statIconContainer, { backgroundColor: 'rgba(255, 149, 0, 0.1)' }]}>
+                <Ionicons name="flame" size={24} color="#FF9500" />
+              </View>
+              <Text style={styles.statValue}>{healthData.activeEnergyBurned ? Math.round(healthData.activeEnergyBurned) : '--'}</Text>
+              <Text style={styles.statLabel}>Calories</Text>
+            </View>
+            
+            <View style={styles.statItem}>
+              <View style={[styles.statIconContainer, { backgroundColor: 'rgba(52, 199, 89, 0.1)' }]}>
+                <Ionicons name="time" size={24} color="#34C759" />
+              </View>
+              <Text style={styles.statValue}>{healthData.exerciseTime ? Math.round(healthData.exerciseTime) : '--'}</Text>
+              <Text style={styles.statLabel}>Active Min</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Heart Rate Section */}
+        {healthData.heartRate && (
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Heart Rate</Text>
+            <View style={styles.metricValueContainer}>
+              <Ionicons name="heart" size={32} color="red" />
+              <Text style={styles.metricValue}>{healthData.heartRate} BPM</Text>
+            </View>
+            <Text style={styles.metricDescription}>
+              Your current heart rate is {healthData.heartRate} beats per minute.
+              {healthData.heartRate < 60 ? ' This is considered a resting heart rate.' : 
+               healthData.heartRate > 100 ? ' This is an elevated heart rate.' : 
+               ' This is within the normal range.'}
+            </Text>
+          </View>
+        )}
+
+        {/* Steps Section */}
+        {healthData.steps && (
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Steps</Text>
+            <View style={styles.metricValueContainer}>
+              <Ionicons name="footsteps" size={32} color="#007AFF" />
+              <Text style={styles.metricValue}>{healthData.steps.toLocaleString()}</Text>
+            </View>
+            <Text style={styles.metricDescription}>
+              You've taken {healthData.steps.toLocaleString()} steps today.
+              {healthData.steps < 5000 ? ' Try to reach at least 10,000 steps for better health.' : 
+               healthData.steps >= 10000 ? ' Great job! You\'ve reached the recommended daily goal.' : 
+               ' You\'re on your way to reaching the recommended 10,000 steps.'}
+            </Text>
+          </View>
+        )}
+
+        {/* Calories Section */}
+        {healthData.activeEnergyBurned && (
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Calories Burned</Text>
+            <View style={styles.metricValueContainer}>
+              <Ionicons name="flame" size={32} color="#FF9500" />
+              <Text style={styles.metricValue}>{Math.round(healthData.activeEnergyBurned)} kcal</Text>
+            </View>
+            <Text style={styles.metricDescription}>
+              You've burned {Math.round(healthData.activeEnergyBurned)} active calories today.
+              {healthData.activeEnergyBurned < 200 ? ' Try to increase your activity level for better results.' : 
+               healthData.activeEnergyBurned > 500 ? ' Excellent! You\'re burning a significant amount of calories.' : 
+               ' You\'re making good progress with your activity level.'}
+            </Text>
+          </View>
+        )}
+
+        {/* Exercise Time Section */}
+        {healthData.exerciseTime && (
+          <View style={styles.sectionContainer}>
+            <Text style={styles.sectionTitle}>Exercise Time</Text>
+            <View style={styles.metricValueContainer}>
+              <Ionicons name="time" size={32} color="#34C759" />
+              <Text style={styles.metricValue}>{Math.round(healthData.exerciseTime)} min</Text>
+            </View>
+            <Text style={styles.metricDescription}>
+              You've exercised for {Math.round(healthData.exerciseTime)} minutes today.
+              {healthData.exerciseTime < 15 ? ' Try to get at least 30 minutes of exercise daily.' : 
+               healthData.exerciseTime >= 30 ? ' Great job! You\'ve reached the recommended daily exercise goal.' : 
+               ' You\'re on your way to reaching the recommended 30 minutes of daily exercise.'}
+            </Text>
+          </View>
+        )}
+
+        {/* Actions Section */}
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>Actions</Text>
           <TouchableOpacity 
-            style={styles.refreshButton}
-            onPress={onRefresh}
+            style={styles.actionButton}
+            onPress={recordWorkout}
           >
-            <Ionicons name="refresh-outline" size={16} color="#fff" />
-            <Text style={styles.refreshButtonText}>Refresh Data</Text>
+            <Ionicons name="fitness-outline" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Record Test Workout</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.actionButton, { backgroundColor: '#4F8EF7', marginTop: 10 }]}
+            onPress={forceRefresh}
+          >
+            <Ionicons name="refresh-outline" size={20} color="#fff" />
+            <Text style={styles.actionButtonText}>Refresh Health Data</Text>
           </TouchableOpacity>
         </View>
-      </View>
-
-      {/* Today's Stats Section */}
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Today's Stats</Text>
-        <View style={styles.statsGrid}>
-          <View style={styles.statItem}>
-            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(255, 0, 0, 0.1)' }]}>
-              <Ionicons name="heart" size={24} color="red" />
-            </View>
-            <Text style={styles.statValue}>{healthData.heartRate || '--'}</Text>
-            <Text style={styles.statLabel}>BPM</Text>
-          </View>
-          
-          <View style={styles.statItem}>
-            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(0, 122, 255, 0.1)' }]}>
-              <Ionicons name="footsteps" size={24} color="#007AFF" />
-            </View>
-            <Text style={styles.statValue}>{healthData.steps ? healthData.steps.toLocaleString() : '--'}</Text>
-            <Text style={styles.statLabel}>Steps</Text>
-          </View>
-          
-          <View style={styles.statItem}>
-            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(255, 149, 0, 0.1)' }]}>
-              <Ionicons name="flame" size={24} color="#FF9500" />
-            </View>
-            <Text style={styles.statValue}>{healthData.activeEnergyBurned ? Math.round(healthData.activeEnergyBurned) : '--'}</Text>
-            <Text style={styles.statLabel}>Calories</Text>
-          </View>
-          
-          <View style={styles.statItem}>
-            <View style={[styles.statIconContainer, { backgroundColor: 'rgba(52, 199, 89, 0.1)' }]}>
-              <Ionicons name="time" size={24} color="#34C759" />
-            </View>
-            <Text style={styles.statValue}>{healthData.exerciseTime ? Math.round(healthData.exerciseTime) : '--'}</Text>
-            <Text style={styles.statLabel}>Active Min</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Heart Rate Section */}
-      {healthData.heartRate && (
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Heart Rate</Text>
-          <View style={styles.metricValueContainer}>
-            <Ionicons name="heart" size={32} color="red" />
-            <Text style={styles.metricValue}>{healthData.heartRate} BPM</Text>
-          </View>
-          <Text style={styles.metricDescription}>
-            Your current heart rate is {healthData.heartRate} beats per minute.
-            {healthData.heartRate < 60 ? ' This is considered a resting heart rate.' : 
-             healthData.heartRate > 100 ? ' This is an elevated heart rate.' : 
-             ' This is within the normal range.'}
-          </Text>
-        </View>
-      )}
-
-      {/* Steps Section */}
-      {healthData.steps && (
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Steps</Text>
-          <View style={styles.metricValueContainer}>
-            <Ionicons name="footsteps" size={32} color="#007AFF" />
-            <Text style={styles.metricValue}>{healthData.steps.toLocaleString()}</Text>
-          </View>
-          <Text style={styles.metricDescription}>
-            You've taken {healthData.steps.toLocaleString()} steps today.
-            {healthData.steps < 5000 ? ' Try to reach at least 10,000 steps for better health.' : 
-             healthData.steps >= 10000 ? ' Great job! You\'ve reached the recommended daily goal.' : 
-             ' You\'re on your way to reaching the recommended 10,000 steps.'}
-          </Text>
-        </View>
-      )}
-
-      {/* Calories Section */}
-      {healthData.activeEnergyBurned && (
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Calories Burned</Text>
-          <View style={styles.metricValueContainer}>
-            <Ionicons name="flame" size={32} color="#FF9500" />
-            <Text style={styles.metricValue}>{Math.round(healthData.activeEnergyBurned)} kcal</Text>
-          </View>
-          <Text style={styles.metricDescription}>
-            You've burned {Math.round(healthData.activeEnergyBurned)} active calories today.
-            {healthData.activeEnergyBurned < 200 ? ' Try to increase your activity level for better results.' : 
-             healthData.activeEnergyBurned > 500 ? ' Excellent! You\'re burning a significant amount of calories.' : 
-             ' You\'re making good progress with your activity level.'}
-          </Text>
-        </View>
-      )}
-
-      {/* Exercise Time Section */}
-      {healthData.exerciseTime && (
-        <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Exercise Time</Text>
-          <View style={styles.metricValueContainer}>
-            <Ionicons name="time" size={32} color="#34C759" />
-            <Text style={styles.metricValue}>{Math.round(healthData.exerciseTime)} min</Text>
-          </View>
-          <Text style={styles.metricDescription}>
-            You've exercised for {Math.round(healthData.exerciseTime)} minutes today.
-            {healthData.exerciseTime < 15 ? ' Try to get at least 30 minutes of exercise daily.' : 
-             healthData.exerciseTime >= 30 ? ' Great job! You\'ve reached the recommended daily exercise goal.' : 
-             ' You\'re on your way to reaching the recommended 30 minutes of daily exercise.'}
-          </Text>
-        </View>
-      )}
-
-      {/* Actions Section */}
-      <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>Actions</Text>
-        <TouchableOpacity 
-          style={styles.actionButton}
-          onPress={recordWorkout}
-        >
-          <Ionicons name="fitness-outline" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>Record Test Workout</Text>
-        </TouchableOpacity>
-        
-        <TouchableOpacity 
-          style={[styles.actionButton, { backgroundColor: '#4F8EF7', marginTop: 10 }]}
-          onPress={forceRefresh}
-        >
-          <Ionicons name="refresh-outline" size={20} color="#fff" />
-          <Text style={styles.actionButtonText}>Refresh Health Data</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaWrapper>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',

@@ -55,6 +55,12 @@
     </dict>
     <key>NSBluetoothAlwaysUsageDescription</key>
     <string>Allow $(PRODUCT_NAME) to connect to bluetooth devices</string>
+    <key>NSCameraUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs access to your camera to take profile pictures</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs access to your photo library to select profile pictures</string>
+    <key>NSPhotoLibraryAddUsageDescription</key>
+    <string>$(PRODUCT_NAME) needs access to save photos to your library</string>
     <key>NSHealthShareUsageDescription</key>
     <string>This app uses your health data to provide insights and track your fitness progress.</string>
     <key>NSHealthUpdateUsageDescription</key>

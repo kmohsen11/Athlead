@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, AlertButton, RefreshControl, Linking, SafeAreaView, Modal } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, ActivityIndicator, AlertButton, RefreshControl, Linking, SafeAreaView, Modal, StatusBar } from 'react-native';
 import useBLE, { SERVICE_UUID, TARGET_DEVICE_UUID, CHARACTERISTIC_UUID } from '../utils/ble';
 import { useHealthKit, HealthData } from '../hooks/useHealthKit';
 import { Ionicons } from '@expo/vector-icons';
 import { Device } from 'react-native-ble-plx';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import SafeAreaWrapper from '../components/SafeAreaWrapper';
 
 // Define the navigation types
 type RootStackParamList = {
@@ -230,164 +231,166 @@ const HomeScreen = () => {
   };
 
   return (
-    <ScrollView 
-      style={styles.scrollView}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={['#4F8EF7']}
-        />
-      }
-    >
-      <SafeAreaView style={styles.container}>
-        {/* AI Insights Section */}
-        <View style={styles.insightsContainer}>
-          <Text style={styles.sectionTitle}>AI Insights</Text>
-          <View style={styles.insightsContent}>
-            <Ionicons name="analytics" size={24} color="#4F8EF7" style={styles.insightsIcon} />
-            <Text style={styles.insightsText}>
-              {isHealthKitAuthorized && healthData.steps ? 
-                `Based on your activity data, you've taken ${healthData.steps} steps today. ${
-                  healthData.steps < 5000 ? 'Try to reach at least 10,000 steps for better health.' :
-                  healthData.steps >= 10000 ? 'Great job! You\'ve reached the recommended daily goal.' :
-                  'You\'re on your way to reaching the recommended 10,000 steps.'
-                }` : 
-                'Connect your Apple Watch to get personalized insights based on your health data.'
-              }
-            </Text>
-          </View>
-        </View>
-
-        {/* EMG Sensor Section */}
-        <View style={styles.metricsContainer}>
-          <Text style={styles.sectionTitle}>EMG Muscle Activity</Text>
-          
-          <TouchableOpacity 
-            style={[styles.connectButton, { marginBottom: 16 }]}
-            onPress={handleConnectPress}
-          >
-            <View style={styles.buttonContent}>
-              <Ionicons 
-                name={isConnected ? "bluetooth" : "bluetooth-outline"} 
-                size={18} 
-                color="#fff" 
-                style={styles.buttonIcon} 
-              />
-              <Text style={styles.connectButtonText}>
-                {isConnected ? 'Disconnect EMG Sensor' : 'Connect EMG Sensor'}
+    <SafeAreaWrapper>
+      <ScrollView 
+        style={styles.scrollView}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={['#4F8EF7']}
+          />
+        }
+      >
+        <View style={styles.container}>
+          {/* AI Insights Section */}
+          <View style={styles.insightsContainer}>
+            <Text style={styles.sectionTitle}>Athlead</Text>
+            <View style={styles.insightsContent}>
+              <Ionicons name="analytics" size={24} color="#4F8EF7" style={styles.insightsIcon} />
+              <Text style={styles.insightsText}>
+                {isHealthKitAuthorized && healthData.steps ? 
+                  `Based on your activity data, you've taken ${healthData.steps} steps today. ${
+                    healthData.steps < 5000 ? 'Try to reach at least 10,000 steps for better health.' :
+                    healthData.steps >= 10000 ? 'Great job! You\'ve reached the recommended daily goal.' :
+                    'You\'re on your way to reaching the recommended 10,000 steps.'
+                  }` : 
+                  'Connect your Apple Watch to get personalized insights based on your health data.'
+                }
               </Text>
             </View>
-          </TouchableOpacity>
-
-          {/* Device selection modal */}
-          {renderDeviceSelectionModal()}
-
-          {/* EMG Data Visualization */}
-          {renderEMGVisualization()}
-        </View>
-
-        {/* Apple Watch Health Data Section */}
-        <View style={styles.metricsContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Apple Watch Health Data</Text>
-            {isHealthKitAuthorized && (
-              <TouchableOpacity 
-                style={styles.refreshIconButton}
-                onPress={forceRefresh}
-              >
-                <Ionicons name="refresh-outline" size={20} color="#4F8EF7" />
-              </TouchableOpacity>
-            )}
           </View>
 
-          {!isHealthKitAuthorized ? (
-            <View style={styles.healthDataPlaceholder}>
-              <Ionicons name="watch-outline" size={40} color="#ccc" />
-              <Text style={styles.placeholderText}>
-                Connect your Apple Watch to view your health metrics
-              </Text>
-              <TouchableOpacity 
-                style={[styles.connectButton, { marginTop: 16 }]}
-                onPress={handleAppleWatchConnect}
-              >
-                <View style={styles.buttonContent}>
-                  <Ionicons name="watch-outline" size={18} color="#fff" style={styles.buttonIcon} />
-                  <Text style={styles.connectButtonText}>Connect Health</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-          ) : isHealthKitLoading ? (
-            <View style={styles.healthDataPlaceholder}>
-              <ActivityIndicator size="large" color="#4F8EF7" />
-              <Text style={styles.placeholderText}>Loading health data...</Text>
-            </View>
-          ) : (
-            <>
-              <View style={styles.watchInfoRow}>
-                <Ionicons name="watch" size={20} color="#4F8EF7" />
-                <Text style={styles.watchInfoText}>
-                  {deviceName || 'Apple Watch'} • Last updated: {healthData.lastUpdated ? 
-                    healthData.lastUpdated.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
-                    'Unknown'}
+          {/* EMG Sensor Section */}
+          <View style={styles.metricsContainer}>
+            <Text style={styles.sectionTitle}>EMG Muscle Activity</Text>
+            
+            <TouchableOpacity 
+              style={[styles.connectButton, { marginBottom: 16 }]}
+              onPress={handleConnectPress}
+            >
+              <View style={styles.buttonContent}>
+                <Ionicons 
+                  name={isConnected ? "bluetooth" : "bluetooth-outline"} 
+                  size={18} 
+                  color="#fff" 
+                  style={styles.buttonIcon} 
+                />
+                <Text style={styles.connectButtonText}>
+                  {isConnected ? 'Disconnect EMG Sensor' : 'Connect EMG Sensor'}
                 </Text>
               </View>
+            </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.refreshButton}
-                onPress={forceRefresh}
-              >
-                <View style={styles.buttonContent}>
-                  <Ionicons name="refresh-outline" size={18} color="#fff" style={styles.buttonIcon} />
-                  <Text style={styles.refreshButtonText}>Refresh Health Data</Text>
-                </View>
-              </TouchableOpacity>
+            {/* Device selection modal */}
+            {renderDeviceSelectionModal()}
 
-              <View style={styles.metricsGrid}>
-                <View style={styles.metricCard}>
-                  <Ionicons name="heart" size={24} color="#FF6B6B" />
-                  <Text style={styles.metricValue}>{healthData.heartRate ?? '--'}</Text>
-                  <Text style={styles.metricLabel}>BPM</Text>
-                </View>
-                
-                <View style={styles.metricCard}>
-                  <Ionicons name="footsteps" size={24} color="#4F8EF7" />
-                  <Text style={styles.metricValue}>{healthData.steps ? healthData.steps.toLocaleString() : '--'}</Text>
-                  <Text style={styles.metricLabel}>Steps</Text>
-                </View>
-                
-                <View style={styles.metricCard}>
-                  <Ionicons name="flame" size={24} color="#FF9500" />
-                  <Text style={styles.metricValue}>{healthData.activeEnergyBurned ? Math.round(healthData.activeEnergyBurned) : '--'}</Text>
-                  <Text style={styles.metricLabel}>Calories</Text>
-                </View>
-                
-                <View style={styles.metricCard}>
-                  <Ionicons name="time" size={24} color="#34C759" />
-                  <Text style={styles.metricValue}>{healthData.activeMinutes ? Math.round(healthData.activeMinutes) : '--'}</Text>
-                  <Text style={styles.metricLabel}>Exercise (min)</Text>
-                </View>
-              </View>
-              
-              {!healthData.heartRate && !healthData.steps && !healthData.activeEnergyBurned && !healthData.activeMinutes && (
-                <View style={styles.noDataContainer}>
-                  <Ionicons name="information-circle-outline" size={24} color="#999" />
-                  <Text style={styles.noDataText}>No health data available for today</Text>
-                </View>
+            {/* EMG Data Visualization */}
+            {renderEMGVisualization()}
+          </View>
+
+          {/* Apple Watch Health Data Section */}
+          <View style={styles.metricsContainer}>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>Apple Watch Health Data</Text>
+              {isHealthKitAuthorized && (
+                <TouchableOpacity 
+                  style={styles.refreshIconButton}
+                  onPress={forceRefresh}
+                >
+                  <Ionicons name="refresh-outline" size={20} color="#4F8EF7" />
+                </TouchableOpacity>
               )}
+            </View>
 
-              <TouchableOpacity 
-                style={styles.viewDetailsButton}
-                onPress={() => navigation.navigate('HealthData')}
-              >
-                <Text style={styles.viewDetailsText}>View Detailed Health Data</Text>
-                <Ionicons name="arrow-forward" size={18} color="#4F8EF7" />
-              </TouchableOpacity>
-            </>
-          )}
+            {!isHealthKitAuthorized ? (
+              <View style={styles.healthDataPlaceholder}>
+                <Ionicons name="watch-outline" size={40} color="#ccc" />
+                <Text style={styles.placeholderText}>
+                  Connect your Apple Watch to view your health metrics
+                </Text>
+                <TouchableOpacity 
+                  style={[styles.connectButton, { marginTop: 16 }]}
+                  onPress={handleAppleWatchConnect}
+                >
+                  <View style={styles.buttonContent}>
+                    <Ionicons name="watch-outline" size={18} color="#fff" style={styles.buttonIcon} />
+                    <Text style={styles.connectButtonText}>Connect Health</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+            ) : isHealthKitLoading ? (
+              <View style={styles.healthDataPlaceholder}>
+                <ActivityIndicator size="large" color="#4F8EF7" />
+                <Text style={styles.placeholderText}>Loading health data...</Text>
+              </View>
+            ) : (
+              <>
+                <View style={styles.watchInfoRow}>
+                  <Ionicons name="watch" size={20} color="#4F8EF7" />
+                  <Text style={styles.watchInfoText}>
+                    {deviceName || 'Apple Watch'} • Last updated: {healthData.lastUpdated ? 
+                      healthData.lastUpdated.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : 
+                      'Unknown'}
+                  </Text>
+                </View>
+
+                <TouchableOpacity 
+                  style={styles.refreshButton}
+                  onPress={forceRefresh}
+                >
+                  <View style={styles.buttonContent}>
+                    <Ionicons name="refresh-outline" size={18} color="#fff" style={styles.buttonIcon} />
+                    <Text style={styles.refreshButtonText}>Refresh Health Data</Text>
+                  </View>
+                </TouchableOpacity>
+
+                <View style={styles.metricsGrid}>
+                  <View style={styles.metricCard}>
+                    <Ionicons name="heart" size={24} color="#FF6B6B" />
+                    <Text style={styles.metricValue}>{healthData.heartRate ?? '--'}</Text>
+                    <Text style={styles.metricLabel}>BPM</Text>
+                  </View>
+                  
+                  <View style={styles.metricCard}>
+                    <Ionicons name="footsteps" size={24} color="#4F8EF7" />
+                    <Text style={styles.metricValue}>{healthData.steps ? healthData.steps.toLocaleString() : '--'}</Text>
+                    <Text style={styles.metricLabel}>Steps</Text>
+                  </View>
+                  
+                  <View style={styles.metricCard}>
+                    <Ionicons name="flame" size={24} color="#FF9500" />
+                    <Text style={styles.metricValue}>{healthData.activeEnergyBurned ? Math.round(healthData.activeEnergyBurned) : '--'}</Text>
+                    <Text style={styles.metricLabel}>Calories</Text>
+                  </View>
+                  
+                  <View style={styles.metricCard}>
+                    <Ionicons name="time" size={24} color="#34C759" />
+                    <Text style={styles.metricValue}>{healthData.activeMinutes ? Math.round(healthData.activeMinutes) : '--'}</Text>
+                    <Text style={styles.metricLabel}>Exercise (min)</Text>
+                  </View>
+                </View>
+                
+                {!healthData.heartRate && !healthData.steps && !healthData.activeEnergyBurned && !healthData.activeMinutes && (
+                  <View style={styles.noDataContainer}>
+                    <Ionicons name="information-circle-outline" size={24} color="#999" />
+                    <Text style={styles.noDataText}>No health data available for today</Text>
+                  </View>
+                )}
+
+                <TouchableOpacity 
+                  style={styles.viewDetailsButton}
+                  onPress={() => navigation.navigate('HealthData')}
+                >
+                  <Text style={styles.viewDetailsText}>View Detailed Health Data</Text>
+                  <Ionicons name="arrow-forward" size={18} color="#4F8EF7" />
+                </TouchableOpacity>
+              </>
+            )}
+          </View>
         </View>
-      </SafeAreaView>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaWrapper>
   );
 
   // Simple visualization of EMG data
@@ -432,6 +435,10 @@ const HomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
   scrollView: {
     flex: 1,
     backgroundColor: '#f5f5f5',

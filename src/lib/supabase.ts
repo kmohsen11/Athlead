@@ -1,6 +1,6 @@
-import { createClient } from '@supabase/supabase-js';
 import 'react-native-url-polyfill/auto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createClient } from '@supabase/supabase-js';
 import { Platform } from 'react-native';
 import * as Linking from 'expo-linking';
 
@@ -17,6 +17,16 @@ const ExpoSecureStorage = {
   },
 };
 
+// Configure deep linking
+const resolveURL = () => {
+  const scheme = 'com.athlead.app';
+  const prefix = Linking.createURL('/');
+  return {
+    scheme,
+    prefix,
+  };
+};
+
 // Replace these with your Supabase project URL and anon key
 const supabaseUrl = 'https://ueenuhespsnibaoqezmz.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZW51aGVzcHNuaWJhb3Flem16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIxMTAyNTYsImV4cCI6MjA1NzY4NjI1Nn0.iEGqNNKPLoIOU9SqdoHwXP-mB6vs1q-kQSIb1sKwdBs';
@@ -31,19 +41,41 @@ const deepLinkingConfig = {
   }
 };
 
+// Get the URL that was used to start the app
+const getInitialURL = async () => {
+  const url = await Linking.getInitialURL();
+  return url;
+};
+
+// Subscribe to URL changes
+const subscribeToURLChanges = (callback: (url: string) => void) => {
+  const subscription = Linking.addEventListener('url', ({ url }) => {
+    callback(url);
+  });
+  
+  return () => {
+    subscription.remove();
+  };
+};
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
-    storage: ExpoSecureStorage,
+    storage: AsyncStorage,
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
+    detectSessionInUrl: false,
     flowType: 'pkce',
-    debug: __DEV__
-  }
+    debug: __DEV__, // Enable debug logs in development
+  },
+});
+
+// Listen for auth state changes
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Supabase auth state change:', event, session ? 'Session exists' : 'No session');
 });
 
 // Export the deep linking configuration
-export { deepLinkingConfig };
+export { deepLinkingConfig, getInitialURL, subscribeToURLChanges };
 
 // Database types
 export type User = {
